@@ -1,0 +1,205 @@
+/*
+ Laboratorio 5 - Electrónica Digital 2
+ Estudiante: Ronal Andrés Berganza Torres
+  
+*/
+
+
+//Variables de los pins 
+const int buttonPin = 31; //button en la Tiva 1
+const int buttonPin2 = 17;//button en la Tiva 2
+//Para el semaforo
+#define verde GREEN_LED
+#define rojo RED_LED
+#define azul BLUE_LED
+
+//definición de los pines en la TIVa para player 1 y 2
+const int P11 = 11;
+const int P12 = 12;
+const int p13 = 13;
+const int P14 = 33;
+const int P15 = 34;
+const int P16 = 35;
+const int P17 = 36;
+const int P18 = 37;
+int P1COUNTER = 0;
+const int P21 = 2;
+const int p22 = 3;
+const int p23 = 4;
+const int p24 = 5;
+const int p25 = 6;
+const int p26 = 7;
+const int p27 = 8;
+const int p28 = 9;
+int P2COUNTER = 0;
+
+//Encendidos de Led por victoria
+int Salida = LOW;//Estado del semaforo
+int P1GANA = LOW;//Cuando el jugador 1 gana
+int P2GANA = LOW;//Cuando el jugador 2 gana
+
+//Anti rebote
+long reboteTime = 0;
+long reboteTime2 = 0;
+long reboteDelay = 100;
+
+void setup(){
+  //Configuración e inicialización de pines
+  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(buttonPin2, INPUT_PULLUP);
+  pinMode(verde, OUTPUT);
+  pinMode(rojo, OUTPUT);
+  pinMode(azul, OUTPUT);
+  pinMode(P11, OUTPUT);
+  pinMode(P12, OUTPUT);
+  pinMode(P13, OUTPUT);
+  pinMode(P14, OUTPUT);
+  pinMode(P15, OUTPUT);
+  pinMode(P16, OUTPUT);
+  pinMode(P17, OUTPUT);
+  pinMode(P18, OUTPUT);
+  pinMode(P21, OUTPUT);
+  pinMode(P22, OUTPUT);
+  pinMode(P23, OUTPUT);
+  pinMode(P24, OUTPUT);
+  pinMode(P25, OUTPUT);
+  pinMode(P26, OUTPUT);
+  pinMode(P27, OUTPUT);
+  pinMode(P28, OUTPUT);
+
+  //Interrupciones
+  attachInterrupt(digitalPinToInterrupt(buttonPin), cuenta1, FALLING);
+  attachInterrupt(digitalPinToInterrupt(buttonPin2), cuenta2, FALLING);
+  Serial.begin(9600);
+}
+//secuencia de salida
+void secuenciasalida(){
+  digitalWrite(rojo,HIGH); 
+  delay(500);
+  digitalWrite(rojo,LOW);
+  delay(100);
+  digitalWrite(rojo,HIGH);
+  digitalWrite(verde,HIGH); 
+  delay(500);
+  digitalWrite(rojo,LOW);
+  digitalWrite(verde,LOW);
+  delay(100);
+  digitalWrite(rojo,LOW);
+  digitalWrite(verde,HIGH); 
+  delay(500);
+  digitalWrite(verde,LOW); 
+}
+
+//MapeO del valor del contador y de los puertos
+void P1estado() {
+  if(P1COUNTER == 1){
+    digitalWrite(P11, HIGH);//1
+  }
+  else if (P1COUNTER  == 2){
+    digitalWrite(P11, LOW);
+    digitalWrite(P12, HIGH);
+  }
+  else if (P1COUNTER  == 3){
+    digitalWrite(P12, LOW);
+    digitalWrite(P13, HIGH);
+  }
+  else if (P1COUNTER == 4){
+    digitalWrite(P13, LOW);
+    digitalWrite(P14, HIGH);
+  }
+  else if (P1COUNTER  == 5){
+    digitalWrite(P14, LOW);
+    digitalWrite(P15, HIGH);  
+  }
+  else if (P1COUNTER == 6){
+    digitalWrite(P15, LOW);
+    digitalWrite(P16, HIGH);  
+  }
+  else if (P1COUNTER  == 7){
+    digitalWrite(P16, LOW);
+    digitalWrite(P17, HIGH); 
+  }
+  else if (P1COUNTER  == 8){
+    digitalWrite(P17, LOW);
+    digitalWrite(P18, HIGH);   
+}
+}
+void P2estado() {
+  if(P2COUNTER == 1){
+    digitalWrite(P21, HIGH);
+  }
+  else if (P2COUNTER == 2){
+    digitalWrite(P21, LOW);
+    digitalWrite(P22, HIGH);
+  }
+  else if (P2COUNTER == 3){
+    digitalWrite(P22, LOW);
+    digitalWrite(P23, HIGH);
+  }
+  else if (P2COUNTER == 4){
+    digitalWrite(P23, LOW);
+    digitalWrite(P24, HIGH);
+  }
+  else if (P2COUNTER == 5){
+    digitalWrite(P24, LOW);
+    digitalWrite(P25, HIGH);  
+  }
+  else if (P2COUNTER == 6){
+    digitalWrite(P25, LOW);
+    digitalWrite(P26, HIGH);  
+  }
+  else if (P2COUNTER == 7){
+    digitalWrite(P26, LOW);
+    digitalWrite(P27, HIGH); 
+  }
+  else if (P2COUNTER == 8){
+    digitalWrite(P27, LOW);
+    digitalWrite(P28, HIGH);   
+}
+}
+
+//determina si alguien logró la vicotria
+void loop (){
+  if(P1GANA == 0 and P2GANA == 0){
+    P1estado();
+    P2estado();
+    Fin();
+    
+  }
+}
+
+//declara victoria cuando uno de los contadores supere los 8 bits
+void Fin(){
+  if (P1COUNTER > 8){
+    P1GANA == 1;//encender la bandera que gano
+    digitalWrite(rojo, LOW);
+    digitalWrite(verde, LOW);//morado
+    digitalWrite(azul, HIGH);
+    delay(2500);
+    reinicio();
+  }
+  else if (P2COUNTER > 8){//Gana el jugador 2
+    P2GANA == 1;
+    digitalWrite(rojo, HIGH);
+    digitalWrite(verde, HIGH);//naranja
+    digitalWrite(azul, LOW);
+    delay(2500);
+    reinicio(); 
+  }
+}
+
+//examina la secuencia de salida para cuando termine se activen los contadores y se pueda competir
+void cuenta1 (){
+  if(secuenciasalida == HIGH and P1GANA == LOW){
+    P1COUNTER++;
+  }
+  salidarevision();
+}
+
+void cuenta2 (){
+  if(secuenciasalida == HIGH and P2GANA == LOW){
+    P2COUNTER++;
+  }
+  salidarevision();
+}
+
